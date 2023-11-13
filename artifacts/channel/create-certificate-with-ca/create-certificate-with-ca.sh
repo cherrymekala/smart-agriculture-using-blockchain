@@ -6,7 +6,7 @@ createcertificatesForOrg1() {
   export FABRIC_CA_CLIENT_HOME=${PWD}/crypto-config-ca/peerOrganizations/org1.example.com/
 
    
-  fabric-ca-client enroll -u https://admin:adminpw@localhost:7054 --caname ca.org1.example.com --tls.certfiles ${PWD}/fabric-ca/org1/tls-cert.pem
+  #fabric-ca-client enroll -u https://admin:adminpw@localhost:7054 --caname ca.org1.example.com --tls.certfiles ${PWD}/fabric-ca/org1/tls-cert.pem
    
 
   echo 'NodeOUs:
@@ -118,7 +118,7 @@ createcertificatesForOrg1() {
 
 }
 
-# createcertificatesForOrg1
+#createcertificatesForOrg1
 
 createCertificateForOrg2() {
   echo
@@ -255,7 +255,7 @@ createCertificateForOrg2() {
 
 }
 
-# createCertificateForOrg2
+#createCertificateForOrg2
 
 createCretificateForOrderer() {
   echo
@@ -423,11 +423,11 @@ createCretificateForOrderer() {
 
 }
 
-# createCretificateForOrderer
-
-sudo rm -rf crypto-config-ca/*
-# sudo rm -rf fabric-ca/*
-createcertificatesForOrg1
-createCertificateForOrg2
 createCretificateForOrderer
+
+# sudo rm -rf crypto-config-ca/*
+# # sudo rm -rf fabric-ca/*
+# createcertificatesForOrg1
+# createCertificateForOrg2
+# createCretificateForOrderer
 

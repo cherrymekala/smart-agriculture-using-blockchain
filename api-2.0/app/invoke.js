@@ -1,82 +1,179 @@
-const { Gateway, Wallets, TxEventHandler, GatewayOptions, DefaultEventHandlerStrategies, TxEventHandlerFactory } = require('fabric-network');
+// const { Gateway, Wallets, DefaultEventHandlerStrategies } = require('fabric-network');
+// const log4js = require('log4js');
+// const logger = log4js.getLogger('BasicNetwork');
+// const util = require('util');
+
+// const helper = require('./helper');
+
+// const invokeTransaction = async (channelName, chaincodeName, fcn, args, username, org_name, transientData) => {
+//     try {
+//         logger.debug(util.format('\n============ invoke transaction on channel %s ============\n', channelName));
+
+//         const ccp = await helper.getCCP(org_name);
+
+//         const walletPath = await helper.getWalletPath(org_name);
+//         const wallet = await Wallets.newFileSystemWallet(walletPath);
+//         console.log(`Wallet path: ${walletPath}`);
+
+//         let identity = await wallet.get(username);
+//         if (!identity) {
+//             console.log(`An identity for the user ${username} does not exist in the wallet, so registering user`);
+//             await helper.getRegisteredUser(username, org_name, true);
+//             identity = await wallet.get(username);
+//             console.log('Run the registerUser.js application before retrying');
+//             return;
+//         }
+
+//         const connectOptions = {
+//             wallet,
+//             identity: username,
+//             discovery: { enabled: true, asLocalhost: true },
+//             eventHandlerOptions: {
+//                 commitTimeout: 100,
+//                 strategy: DefaultEventHandlerStrategies.NETWORK_SCOPE_ALLFORTX
+//             }
+//         };
+
+//         const gateway = new Gateway();
+//         await gateway.connect(ccp, connectOptions);
+
+//         const network = await gateway.getNetwork(channelName);
+//         const contract = network.getContract(chaincodeName);
+
+//         let result;
+//         let message;
+
+//         if (fcn === "recordSensorData") {
+//             if (args.length !== 2) {
+//                 return { error: "Incorrect number of arguments. Expecting 2." };
+//             }
+
+//             const humidity = parseInt(args[0]);
+//             const temperature = parseInt(args[1]);
+//             const timestamp = Math.floor(Date.now() / 1000);
+
+//             result = await contract.submitTransaction(fcn, humidity.toString(), temperature.toString(), timestamp.toString());
+//             message = `Successfully recorded sensor data with ID: ${timestamp}`;
+//         }
+//         else if (fcn === "getSensorData") {
+//             if (args.length !== 1) {
+//                 return { error: "Incorrect number of arguments. Expecting 1." };
+//             }
+
+//             result = await contract.evaluateTransaction(fcn, args[0]);
+//             message = `Successfully retrieved sensor data with ID: ${args[0]}`;
+//         }
+//         else {
+//             return { error: `Invocation requires either recordSensorData or getSensorData as function, but got ${fcn}` };
+//         }
+
+//         await gateway.disconnect();
+
+//         result = JSON.parse(result.toString());
+
+//         let response = {
+//             message: message,
+//             result: result
+//         };
+
+//         // Format the result for better readability
+//         const formattedResult = {
+//             message: response.message,
+//             humidity: result.humidity,
+//             temperature: result.temperature,
+//             timestamp: result.timestamp
+//         };
+
+//         console.log(formattedResult);
+
+//         return response;
+//     } catch (error) {
+//         console.log(`Getting error: ${error}`);
+//         return {
+//             error: error.message,
+//             errorData: error.data
+//         };
+//     }
+// };
+
+// exports.invokeTransaction = invokeTransaction;
+
+
+const { Gateway, Wallets, DefaultEventHandlerStrategies } = require('fabric-network');
 const fs = require('fs');
-const path = require("path")
+const path = require("path");
 const log4js = require('log4js');
 const logger = log4js.getLogger('BasicNetwork');
-const util = require('util')
+const util = require('util');
 
-const helper = require('./helper')
+const helper = require('./helper');
 
 const invokeTransaction = async (channelName, chaincodeName, fcn, args, username, org_name, transientData) => {
     try {
         logger.debug(util.format('\n============ invoke transaction on channel %s ============\n', channelName));
 
-        // load the network configuration
-        // const ccpPath =path.resolve(__dirname, '..', 'config', 'connection-org1.json');
-        // const ccpJSON = fs.readFileSync(ccpPath, 'utf8')
-        const ccp = await helper.getCCP(org_name) //JSON.parse(ccpJSON);
+        const ccp = await helper.getCCP(org_name);
 
-        // Create a new file system based wallet for managing identities.
-        const walletPath = await helper.getWalletPath(org_name) //path.join(process.cwd(), 'wallet');
+        const walletPath = await helper.getWalletPath(org_name);
         const wallet = await Wallets.newFileSystemWallet(walletPath);
         console.log(`Wallet path: ${walletPath}`);
 
-        // Check to see if we've already enrolled the user.
         let identity = await wallet.get(username);
         if (!identity) {
             console.log(`An identity for the user ${username} does not exist in the wallet, so registering user`);
-            await helper.getRegisteredUser(username, org_name, true)
+            await helper.getRegisteredUser(username, org_name, true);
             identity = await wallet.get(username);
             console.log('Run the registerUser.js application before retrying');
             return;
         }
 
-        
-
         const connectOptions = {
-            wallet, identity: username, discovery: { enabled: true, asLocalhost: true },
+            wallet,
+            identity: username,
+            discovery: { enabled: true, asLocalhost: true },
             eventHandlerOptions: {
                 commitTimeout: 100,
                 strategy: DefaultEventHandlerStrategies.NETWORK_SCOPE_ALLFORTX
             }
-            // transaction: {
-            //     strategy: createTransactionEventhandler()
-            // }
-        }
+        };
 
-        // Create a new gateway for connecting to our peer node.
         const gateway = new Gateway();
         await gateway.connect(ccp, connectOptions);
 
-        // Get the network (channel) our contract is deployed to.
         const network = await gateway.getNetwork(channelName);
-
         const contract = network.getContract(chaincodeName);
 
-        let result
+        let result;
         let message;
-        if (fcn === "createCar" || fcn === "createPrivateCarImplicitForOrg1"
-            || fcn == "createPrivateCarImplicitForOrg2") {
-            result = await contract.submitTransaction(fcn, args[0], args[1], args[2], args[3], args[4]);
-            message = `Successfully added the car asset with key ${args[0]}`
-
-        } else if (fcn === "changeCarOwner") {
-            result = await contract.submitTransaction(fcn, args[0], args[1]);
-            message = `Successfully changed car owner with key ${args[0]}`
-        } else if (fcn == "createPrivateCar" || fcn =="updatePrivateData") {
-            console.log(`Transient data is : ${transientData}`)
-            let carData = JSON.parse(transientData)
-            console.log(`car data is : ${JSON.stringify(carData)}`)
-            let key = Object.keys(carData)[0]
-            const transientDataBuffer = {}
-            transientDataBuffer[key] = Buffer.from(JSON.stringify(carData.car))
-            result = await contract.createTransaction(fcn)
-                .setTransient(transientDataBuffer)
-                .submit()
-            message = `Successfully submitted transient data`
-        }
+        if (fcn === "recordSensorData") {
+            if (args.length !== 4) {
+                return { error: "Incorrect number of arguments. Expecting 4." };
+            }
+            result = await contract.submitTransaction(fcn, args[0], args[1], args[2],args[3]);
+            message = `Successfully recorded sensor data with ID: ${args[0]}`;
+        } else if (fcn === "getSensorData") {
+            if (args.length !== 1) {
+                return { error: "Incorrect number of arguments. Expecting 1." };
+            }
+            result = await contract.evaluateTransaction(fcn, args[0]);
+            message = `Successfully retrieved sensor data with ID: ${args[0]}`;
+            return result;
+        }//else if (fcn === "recordTensiometerData") {
+        //     if (args.length !== 2) {
+        //         return { error: "Incorrect number of arguments. Expecting 2." };
+        //     }
+        //     result = await contract.submitTransaction(fcn, args[0], args[1]);
+        //     message = `Successfully recorded tensiometer data with ID: ${args[0]}`;
+        // } else if (fcn === "getTensiometerData") {
+        //     if (args.length !== 1) {
+        //         return { error: "Incorrect number of arguments. Expecting 1." };
+        //     }
+        //     result = await contract.evaluateTransaction(fcn, args[0]);
+        //     message = `Successfully retrieved tensiometer data with ID: ${args[0]}`;
+        //     return result;
+        // }
         else {
-            return `Invocation require either createCar or changeCarOwner as function but got ${fcn}`
+            return { error: `Invocation requires either recordSensorData or getSensorData as function, but got ${fcn}` };
         }
 
         await gateway.disconnect();
@@ -85,18 +182,29 @@ const invokeTransaction = async (channelName, chaincodeName, fcn, args, username
 
         let response = {
             message: message,
-            result
-        }
+            result: result
+        };
+
+        // Format the result for better readability
+        const formattedResult = {
+            message: response.message,
+            humidity: result.humidity,
+            id: result.id,
+            Timestamp: result.Timestamp,
+            temperature: result.temperature
+        };
+
+        console.log(formattedResult);
 
         return response;
-
-
     } catch (error) {
-
-        console.log(`Getting error: ${error}`)
-        return error.message
-
+        console.log(`Getting error: ${error}`);
+        return {
+            error: error.message,
+            errorData: error.data
+        };
     }
-}
+};
 
-exports.invokeTransaction = invokeTransaction;
+exports.invokeTransaction = invokeTransaction
+

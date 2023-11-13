@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Farmer's Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" href="fontawesome-free-6.4.0-web/css/all.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.1/socket.io.js"></script>
+<script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" defer></script>
+
+<script>
+    window.OneSignal = window.OneSignal || [];
+    OneSignal.push(function () {
+        OneSignal.init({
+            appId: "6fd688e0-c4c4-4a91-abf9-70f05fe26516",
+        });
+        // Subscribe the user to notifications
+        OneSignal.push(function () {
+            OneSignal.on("subscriptionChange", function (isSubscribed) {
+                if (isSubscribed) {
+                    console.log("User is subscribed to notifications.");
+                    // You can handle additional logic here if needed.
+                } else {
+                    console.log("User is NOT subscribed to notifications.");
+                }
+            });
+
+            // Check if the user is already subscribed
+            OneSignal.isPushNotificationsEnabled(function (isSubscribed) {
+                if (!isSubscribed) {
+                    // If the user is not subscribed, subscribe them now
+                    OneSignal.push(["registerForPushNotifications"]);
+                }
+            });
+        });
+
+        // Handle notification clicks
+        OneSignal.push(["addListenerForNotificationOpened", function (event) {
+            // Handle the click event when the user clicks on a notification
+            console.log("Notification clicked:", event);
+            // You can customize the behavior when the user clicks on the notification.
+
+            // Add the redirection logic here
+            window.location.href = "http://127.0.0.1:5500/farmers.html";
+        }]);
+    });
+</script>
+
+
+
+    <style>
+        .sensor-data-item {
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .sensor-data-item span {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .sensor-data-item span.label {
+            font-weight: bold;
+        }
+    </style>
+    <style>
+        .profile-details-container {
+            font-size: 20px;
+            /* Adjust the font size as desired */
+        }
+    
+        .profile-detail {
+            margin-bottom: 10px;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="scripts.js"></script>
+    <script>
+            // Existing script from the original farmers.html file
+
+                function getUserRole() {
+                    // Implement this function to get the user's role, you can use a cookie, session storage, or any other method
+                    // For example, you can set a role cookie during login or signup
+                    // For the purpose of this demonstration, I'll use a simple method that returns 'farmer'
+                    return 'farmer';
+                }
+
+                function getUserDetails() {
+                        var userDetails;
+                        var role = getUserRole();
+
+                        if (role === 'farmer') {
+                            userDetails = JSON.parse(localStorage.getItem('farmerDetails'));
+                        } else if (role === 'agricultural_expert') {
+                            userDetails = JSON.parse(localStorage.getItem('expertDetails'));
+                        }
+
+                        return userDetails;
+                    }
+
+        let id = 1;
+            const batchSize = 10;
+
+            function showDashboard() {
+                var profileSection = document.getElementById('my-profile');
+                var dashboardSection = document.getElementById('dashboard');
+                var querySection = document.getElementById('query');
+
+                profileSection.classList.add('hidden');
+                dashboardSection.classList.remove('hidden');
+                querySection.classList.add('hidden');
+
+                // Remove the "home-page" class from the body tag
+                document.body.classList.remove('home-page');
+
+                var sensorContainer = document.getElementById('sensor-container');
+                sensorContainer.innerHTML = ''; // Clear existing sensors
+
+                // Array of sensors with their data
+                var sensors = [
+                    { name: 'DHT Sensor', status: 'Active', online: true, image: 'dht.jpg' },
+                    { name: 'Tensiometer', status: 'Active', online: true, image: 'tensiometer.png' },
+                    { name: 'Photoresistor', status: 'Active', online: true, image: 'ldr-sensor.png' },
+                   { name: 'GPS Sensor', status: 'Active', online: true, image: 'gps.jpg' },
+                   { name: 'Accelerometer Sensor', status: 'Active', online: true, image: 'accelerometer-sensor.png' },
+                    { name: 'Airflow Sensor', status: 'Active', online: true, image: 'airflow.png' },
+                     { name: 'Electronic Sensor', status: 'Active', online: true, image: 'sensor.png' },
+                     { name: 'Leaf Moisture Sensor', status: 'Active', online: true, image: 'leaf.png' },
+                      { name: 'Optical Sensor', status: 'Active', online: true, image: 'optical.jpg' },
+                      { name: 'Nutrient Sensor', status: 'Active', online: true, image: 'nutrient.png' },
+                      { name: 'Wind Speed Sensor', status: 'Active', online: true, image: 'wind.png' },
+                       { name: 'CO2 Sensor', status: 'Active', online: true, image: 'CO2.jpg' }
+                   // Add more sensors as needed
+                ];
+
+                // Generate sensor buttons
+                sensors.forEach(function (sensor) {
+                    // Create sensor button element
+                    var sensorButton = document.createElement('button');
+                    sensorButton.classList.add('sensor-button');
+                    if (sensor.online) {
+                        sensorButton.classList.add('online');
+                    } else {
+                        sensorButton.classList.add('offline');
+                    }
+                    if (sensor.status === 'Active') {
+                        // Create notification indicator element
+                        var notificationIndicator = document.createElement('div');
+                        notificationIndicator.classList.add('notification-indicator');
+                        sensorButton.appendChild(notificationIndicator);
+
+                        // Create notification icon element
+                        var notificationIcon = document.createElement('i');
+                        notificationIcon.classList.add('fas', 'fa-info', 'notification-icon'); // Add classes for Font Awesome info icon
+                        notificationIndicator.appendChild(notificationIcon);
+                    }
+
+                    // ... Rest of the button creation code ...
+
+                    // Create sensor image element
+                    var sensorImage = document.createElement('img');
+                    sensorImage.src = sensor.image;
+                    sensorImage.alt = sensor.name;
+                    sensorImage.classList.add('sensor-image');
+                    sensorButton.appendChild(sensorImage);
+
+                    // Create sensor name element
+                    var sensorName = document.createElement('span');
+                    sensorName.textContent = sensor.name;
+                    sensorName.classList.add('sensor-name');
+                    sensorButton.appendChild(sensorName);
+
+                    // Create sensor status element
+                    var sensorStatus = document.createElement('span');
+                    sensorStatus.textContent = 'Status: ' + sensor.status;
+                    sensorStatus.classList.add('sensor-status');
+                    sensorButton.appendChild(sensorStatus);
+
+                    // Add notification indicator if the sensor data meets the condition
+                    if (sensor.humidity > 70 || sensor.temperature > 100) {
+                        var notificationIcon = document.createElement('span');
+                        notificationIcon.classList.add('notification-icon');
+                        notificationIcon.textContent = 'i';
+                        sensorButton.appendChild(notificationIcon);
+                    }
+
+                    // Add blinking animation for inactive sensors
+                    if (!sensor.online) {
+                        var blinkingLight = document.createElement('div');
+                        blinkingLight.classList.add('blinking-light');
+                        sensorButton.appendChild(blinkingLight);
+                    }
+
+                    sensorContainer.appendChild(sensorButton);
+
+                    sensorButton.addEventListener('click', function () {
+                        if (sensor.name === 'DHT Sensor') {
+                            fetchSensorData(sensor.name);
+                        } else if (sensor.name === 'Tensiometer') {
+                            fetchSensorData(sensor.name);
+                        } else if (sensor.name === 'Photoresistor') {
+                            fetchSensorData(sensor.name); 
+                        } else if (sensor.name === 'GPS Sensor') {
+                            fetchSensorData(sensor.name); 
+                        } else if (sensor.name === 'Accelerometer Sensor') {
+                            fetchSensorData(sensor.name); 
+                        } else if (sensor.name === 'Airflow Sensor') {
+                            fetchSensorData(sensor.name); 
+                        } else if (sensor.name === 'Electronic Sensor') {
+                            fetchSensorData(sensor.name); 
+                        } else if (sensor.name === 'Leaf Moisture Sensor') {
+                            fetchSensorData(sensor.name); 
+                        } else if (sensor.name === 'Optical Sensor') {
+                            fetchSensorData(sensor.name);
+                        } else if (sensor.name === 'Nutrient Sensor') {
+                            fetchSensorData(sensor.name);
+                        } else if (sensor.name === 'Wind Speed Sensor') {
+                            fetchSensorData(sensor.name);
+                        } else if (sensor.name === 'CO2 Sensor') {
+                            fetchSensorData(sensor.name);
+                        }
+                    });
+
+                    sensorContainer.appendChild(sensorButton);
+                });
+
+                // Update the image for the dashboard section
+                var profileImage = document.getElementById('profile-image');
+                profileImage.src = 'f.jpg'; // Replace 'dashboard.jpg' with the new image URL
+
+                const sensorDataContainer = document.getElementById('sensor-data');
+                var currentSensor = sensorName;
+
+               function fetchSensorData(sensorName) {
+                    const promises = [];
+                      // Reset the id when switching to a new sensor
+                   if (sensorName !== currentSensor) {
+                       currentSensor = sensorName;
+                       id = 1;
+                   }
+                    for (let i = 0; i < batchSize; i++) {
+                        promises.push(
+                            fetch(`http://localhost:4000/channels/mychannel/chaincodes/fabcar?fcn=getSensorData&args=["${id}"]`, {
+                                method: 'GET',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjEzODcwMTYsInVzZXJuYW1lIjoic2hhcmFuIiwib3JnTmFtZSI6Ik9yZzEiLCJpYXQiOjE2ODk4NTEwMTZ9.DNk1LJY_vAQK0-Lx17RM1f7ZlA7Yh8LcKoWLYj_mHMo' // Replace {token} with the actual token value
+                                }
+                            }).then(response => response.json())
+                        );
+                        id++;
+                    }
+
+                    Promise.all(promises)
+                        .then(function (responses) {
+                            // Extract sensor data from JSON responses
+                            const sensorDataArray = responses.map(response => response.result);
+
+                            // Process the extracted sensor data and create the table
+                            const table = createSensorDataTable(sensorDataArray,sensorName);
+                            sensorDataContainer.innerHTML = '';
+        sensorDataContainer.appendChild(table);
+                        })
+                        .catch(function (error) {
+                            console.error(error);
+                            // Update the sensor data with an error message in the web portal
+                            const sensorDataHTML = `
+        <div class="sensor-data-item">
+          <span>Error occurred while fetching sensor data</span>
+        </div>
+      `;
+                            sensorDataContainer.innerHTML = sensorDataHTML;
+                        });
+                }
+
+
+
+                function createSensorDataTable(sensorDataArray,sensorName) {
+                    if(sensorName=='DHT Sensor')
+                    {
+                    const table = document.createElement('table');
+                    table.className = 'sensor-table';
+
+                    // Create table row for table headings
+                    const thead = document.createElement('thead');
+                    const headingRow = document.createElement('tr');
+                    const headings = ['ID', 'Timestamp', 'Temperature', 'Humidity'];
+                    for (const heading of headings) {
+                        const th = document.createElement('th');
+                        th.textContent = heading;
+                        headingRow.appendChild(th);
+                    }
+                    thead.appendChild(headingRow);
+                    table.appendChild(thead);
+
+                    // Create table rows with values
+                    const tbody = document.createElement('tbody');
+                    for (const sensorData of sensorDataArray) {
+                        const dataRow = document.createElement('tr');
+                        const keys = ['id', 'timestamp', 'temperature', 'humidity'];
+                        for (const key of keys) {
+                            const td = document.createElement('td');
+                            td.textContent = sensorData[key];
+                            dataRow.appendChild(td);
+                        }
+
+                        // Check and apply highlight if temperature or humidity crosses threshold
+                        const temperatureThreshold = 100; // Change this to your desired temperature threshold
+                        const humidityThreshold = 70; // Change this to your desired humidity threshold
+
+                        if (sensorData.temperature > temperatureThreshold || sensorData.humidity > humidityThreshold) {
+                            dataRow.classList.add('highlighted-row');
+                        }
+
+                        tbody.appendChild(dataRow);
+                    }
+                    table.appendChild(tbody);
+
+                    return table;
+
+                sensors.forEach(function (sensor) {
+                    // ...
+
+                    sensorButton.addEventListener('click', function () {
+                        fetchSensorData(sensor.id); // Pass the sensor ID to the fetchSensorData function
+                    });
+
+                    // ...
+                });
+            }else if(sensorName=='Tensiometer')
+            {
+                 const table = document.createElement('table');
+                        table.className = 'sensor-table';
+
+                        // Create table row for table headings
+                        const thead = document.createElement('thead');
+                        const headingRow = document.createElement('tr');
+                        const headings = ['ID', 'Timestamp', 'Soil Moisture'];
+                        for (const heading of headings) {
+                            const th = document.createElement('th');
+                            th.textContent = heading;
+                            headingRow.appendChild(th);
+                        }
+                        thead.appendChild(headingRow);
+                        table.appendChild(thead);
+
+                        // Create table rows with values
+                        const tbody = document.createElement('tbody');
+                        for (const sensorData of sensorDataArray) {
+                            const dataRow = document.createElement('tr');
+                            const keys = ['id', 'timestamp', 'tensiometer'];
+                            for (const key of keys) {
+                                const td = document.createElement('td');
+                                td.textContent = sensorData[key];
+                                dataRow.appendChild(td);
+                            }
+
+                            // Check and apply highlight if temperature or humidity crosses threshold
+                            const tensiometerThreshold = 50; // Change this to your desired temperature threshold
+
+                            if (sensorData.tensiometer > tensiometerThreshold) {
+                                dataRow.classList.add('highlighted-row');
+                            }
+
+                            tbody.appendChild(dataRow);
+                        }
+                        table.appendChild(tbody);
+
+                        return table;
+
+                        sensors.forEach(function (sensor) {
+                            // ...
+
+                            sensorButton.addEventListener('click', function () {
+                                fetchSensorData(sensor.id); // Pass the sensor ID to the fetchSensorData function
+                            });
+
+                            // ...
+                        });
+            } else if (sensorName == 'Photoresistor') {
+                        const table = document.createElement('table');
+                        table.className = 'sensor-table';
+
+                        // Create table row for table headings
+                        const thead = document.createElement('thead');
+                        const headingRow = document.createElement('tr');
+                        const headings = ['ID', 'Timestamp', 'Light Intensity'];
+                        for (const heading of headings) {
+                            const th = document.createElement('th');
+                            th.textContent = heading;
+                            headingRow.appendChild(th);
+                        }
+                        thead.appendChild(headingRow);
+                        table.appendChild(thead);
+
+                        // Create table rows with values
+                        const tbody = document.createElement('tbody');
+                        for (const sensorData of sensorDataArray) {
+                            const dataRow = document.createElement('tr');
+                            const keys = ['id', 'timestamp', 'photoresistor'];
+                            for (const key of keys) {
+                                const td = document.createElement('td');
+                                td.textContent = sensorData[key];
+                                dataRow.appendChild(td);
+                            }
+
+                            // Check and apply highlight if temperature or humidity crosses threshold
+                            const photoresistorThreshold = 20; // Change this to your desired temperature threshold
+
+                            if (sensorData.photoresistor < photoresistorThreshold) {
+                                dataRow.classList.add('highlighted-row');
+                            }
+
+                            tbody.appendChild(dataRow);
+                        }
+                        table.appendChild(tbody);
+
+                        return table;
+
+                        sensors.forEach(function (sensor) {
+                            // ...
+
+                            sensorButton.addEventListener('click', function () {
+                                fetchSensorData(sensor.id); // Pass the sensor ID to the fetchSensorData function
+                            });
+
+                            // ...
+                        });
+                    } else if (sensorName == 'GPS Sensor') {
+                        const table = document.createElement('table');
+                        table.className = 'sensor-table';
+
+                        // Create table row for table headings
+                        const thead = document.createElement('thead');
+                        const headingRow = document.createElement('tr');
+                        const headings = ['ID', 'Timestamp', 'Location'];
+                        for (const heading of headings) {
+                            const th = document.createElement('th');
+                            th.textContent = heading;
+                            headingRow.appendChild(th);
+                        }
+                        thead.appendChild(headingRow);
+                        table.appendChild(thead);
+
+                        // Create table rows with values
+                        const tbody = document.createElement('tbody');
+                        for (const sensorData of sensorDataArray) {
+                            const dataRow = document.createElement('tr');
+                            const keys = ['id', 'timestamp', 'gps'];
+                            for (const key of keys) {
+                                const td = document.createElement('td');
+                                td.textContent = sensorData[key];
+                                dataRow.appendChild(td);
+                            }
+
+                            // Check and apply highlight if temperature or humidity crosses threshold
+                            const gpsThreshold = 50; // Change this to your desired temperature threshold
+
+                            if (sensorData.gps < gpsThreshold) {
+                                dataRow.classList.add('highlighted-row');
+                            }
+
+                            tbody.appendChild(dataRow);
+                        }
+                        table.appendChild(tbody);
+
+                        return table;
+
+                        sensors.forEach(function (sensor) {
+                            // ...
+
+                            sensorButton.addEventListener('click', function () {
+                                fetchSensorData(sensor.id); // Pass the sensor ID to the fetchSensorData function
+                            });
+
+                            // ...
+                        });
+                    } else if (sensorName == 'Accelerometer Sensor') {
+                        const table = document.createElement('table');
+                        table.className = 'sensor-table';
+
+                        // Create table row for table headings
+                        const thead = document.createElement('thead');
+                        const headingRow = document.createElement('tr');
+                        const headings = ['ID', 'Timestamp', 'Acceleration'];
+                        for (const heading of headings) {
+                            const th = document.createElement('th');
+                            th.textContent = heading;
+                            headingRow.appendChild(th);
+                        }
+                        thead.appendChild(headingRow);
+                        table.appendChild(thead);
+
+                        // Create table rows with values
+                        const tbody = document.createElement('tbody');
+                        for (const sensorData of sensorDataArray) {
+                            const dataRow = document.createElement('tr');
+                            const keys = ['id', 'timestamp', 'accelerometer'];
+                            for (const key of keys) {
+                                const td = document.createElement('td');
+                                td.textContent = sensorData[key];
+                                dataRow.appendChild(td);
+                            }
+
+                            // Check and apply highlight if temperature or humidity crosses threshold
+                            const accelerometerThreshold = 16; // Change this to your desired temperature threshold
+
+                            if (sensorData.accelerometer > accelerometerThreshold) {
+                                dataRow.classList.add('highlighted-row');
+                            }
+
+                            tbody.appendChild(dataRow);
+                        }
+                        table.appendChild(tbody);
+
+                        return table;
+
+                        sensors.forEach(function (sensor) {
+                            // ...
+
+                            sensorButton.addEventListener('click', function () {
+                                fetchSensorData(sensor.id); // Pass the sensor ID to the fetchSensorData function
+                            });
+
+                            // ...
+                        });
+                    } else if (sensorName == 'Airflow Sensor') {
+                        const table = document.createElement('table');
+                        table.className = 'sensor-table';
+
+                        // Create table row for table headings
+                        const thead = document.createElement('thead');
+                        const headingRow = document.createElement('tr');
+                        const headings = ['ID', 'Timestamp', 'Airflow'];
+                        for (const heading of headings) {
+                            const th = document.createElement('th');
+                            th.textContent = heading;
+                            headingRow.appendChild(th);
+                        }
+                        thead.appendChild(headingRow);
+                        table.appendChild(thead);
+
+                        // Create table rows with values
+                        const tbody = document.createElement('tbody');
+                        for (const sensorData of sensorDataArray) {
+                            const dataRow = document.createElement('tr');
+                            const keys = ['id', 'timestamp', 'airflow'];
+                            for (const key of keys) {
+                                const td = document.createElement('td');
+                                td.textContent = sensorData[key];
+                                dataRow.appendChild(td);
+                            }
+
+                            // Check and apply highlight if temperature or humidity crosses threshold
+                            const airflowThreshold = 10; // Change this to your desired temperature threshold
+
+                            if (sensorData.airflow > airflowThreshold) {
+                                dataRow.classList.add('highlighted-row');
+                            }
+
+                            tbody.appendChild(dataRow);
+                        }
+                        table.appendChild(tbody);
+
+                        return table;
+
+                        sensors.forEach(function (sensor) {
+                            // ...
+
+                            sensorButton.addEventListener('click', function () {
+                                fetchSensorData(sensor.id); // Pass the sensor ID to the fetchSensorData function
+                            });
+
+                            // ...
+                        });
+                    } else if (sensorName == 'Electronic Sensor') {
+                        const table = document.createElement('table');
+                        table.className = 'sensor-table';
+
+                        // Create table row for table headings
+                        const thead = document.createElement('thead');
+                        const headingRow = document.createElement('tr');
+                        const headings = ['ID', 'Timestamp', 'Electrical Conductivity'];
+                        for (const heading of headings) {
+                            const th = document.createElement('th');
+                            th.textContent = heading;
+                            headingRow.appendChild(th);
+                        }
+                        thead.appendChild(headingRow);
+                        table.appendChild(thead);
+
+                        // Create table rows with values
+                        const tbody = document.createElement('tbody');
+                        for (const sensorData of sensorDataArray) {
+                            const dataRow = document.createElement('tr');
+                            const keys = ['id', 'timestamp', 'electronic'];
+                            for (const key of keys) {
+                                const td = document.createElement('td');
+                                td.textContent = sensorData[key];
+                                dataRow.appendChild(td);
+                            }
+
+                            // Check and apply highlight if temperature or humidity crosses threshold
+                            const electronicThreshold = 5; // Change this to your desired temperature threshold
+
+                            if (sensorData.electronic > electronicThreshold) {
+                                dataRow.classList.add('highlighted-row');
+                            }
+
+                            tbody.appendChild(dataRow);
+                        }
+                        table.appendChild(tbody);
+
+                        return table;
+
+                        sensors.forEach(function (sensor) {
+                            // ...
+
+                            sensorButton.addEventListener('click', function () {
+                                fetchSensorData(sensor.id); // Pass the sensor ID to the fetchSensorData function
+                            });
+
+                            // ...
+                        });
+                    } else if (sensorName == 'Leaf Moisture Sensor') {
+                        const table = document.createElement('table');
+                        table.className = 'sensor-table';
+
+                        // Create table row for table headings
+                        const thead = document.createElement('thead');
+                        const headingRow = document.createElement('tr');
+                        const headings = ['ID', 'Timestamp', 'Leaf Moisture'];
+                        for (const heading of headings) {
+                            const th = document.createElement('th');
+                            th.textContent = heading;
+                            headingRow.appendChild(th);
+                        }
+                        thead.appendChild(headingRow);
+                        table.appendChild(thead);
+
+                        // Create table rows with values
+                        const tbody = document.createElement('tbody');
+                        for (const sensorData of sensorDataArray) {
+                            const dataRow = document.createElement('tr');
+                            const keys = ['id', 'timestamp', 'leaf'];
+                            for (const key of keys) {
+                                const td = document.createElement('td');
+                                td.textContent = sensorData[key];
+                                dataRow.appendChild(td);
+                            }
+
+                            // Check and apply highlight if temperature or humidity crosses threshold
+                            const leafThreshold = 0; // Change this to your desired temperature threshold
+
+                            if (sensorData.leaf == leafThreshold) {
+                                dataRow.classList.add('highlighted-row');
+                            }
+
+                            tbody.appendChild(dataRow);
+                        }
+                        table.appendChild(tbody);
+
+                        return table;
+
+                        sensors.forEach(function (sensor) {
+                            // ...
+
+                            sensorButton.addEventListener('click', function () {
+                                fetchSensorData(sensor.id); // Pass the sensor ID to the fetchSensorData function
+                            });
+
+                            // ...
+                        });
+                    } else if (sensorName == 'Optical Sensor') {
+                        const table = document.createElement('table');
+                        table.className = 'sensor-table';
+
+                        // Create table row for table headings
+                        const thead = document.createElement('thead');
+                        const headingRow = document.createElement('tr');
+                        const headings = ['ID', 'Timestamp', 'Leaf Color Intensity'];
+                        for (const heading of headings) {
+                            const th = document.createElement('th');
+                            th.textContent = heading;
+                            headingRow.appendChild(th);
+                        }
+                        thead.appendChild(headingRow);
+                        table.appendChild(thead);
+
+                        // Create table rows with values
+                        const tbody = document.createElement('tbody');
+                        for (const sensorData of sensorDataArray) {
+                            const dataRow = document.createElement('tr');
+                            const keys = ['id', 'timestamp', 'optical'];
+                            for (const key of keys) {
+                                const td = document.createElement('td');
+                                td.textContent = sensorData[key];
+                                dataRow.appendChild(td);
+                            }
+
+                            // Check and apply highlight if temperature or humidity crosses threshold
+                            const opticalThreshold = 213; // Change this to your desired temperature threshold
+
+                            if (sensorData.optical > opticalThreshold) {
+                                dataRow.classList.add('highlighted-row');
+                            }
+
+                            tbody.appendChild(dataRow);
+                        }
+                        table.appendChild(tbody);
+
+                        return table;
+
+                        sensors.forEach(function (sensor) {
+                            // ...
+
+                            sensorButton.addEventListener('click', function () {
+                                fetchSensorData(sensor.id); // Pass the sensor ID to the fetchSensorData function
+                            });
+
+                            // ...
+                        });
+                    } else if (sensorName == 'Nutrient Sensor') {
+                        const table = document.createElement('table');
+                        table.className = 'sensor-table';
+
+                        // Create table row for table headings
+                        const thead = document.createElement('thead');
+                        const headingRow = document.createElement('tr');
+                        const headings = ['ID', 'Timestamp', 'Nutrients Level'];
+                        for (const heading of headings) {
+                            const th = document.createElement('th');
+                            th.textContent = heading;
+                            headingRow.appendChild(th);
+                        }
+                        thead.appendChild(headingRow);
+                        table.appendChild(thead);
+
+                        // Create table rows with values
+                        const tbody = document.createElement('tbody');
+                        for (const sensorData of sensorDataArray) {
+                            const dataRow = document.createElement('tr');
+                            const keys = ['id', 'timestamp', 'nutrient'];
+                            for (const key of keys) {
+                                const td = document.createElement('td');
+                                td.textContent = sensorData[key];
+                                dataRow.appendChild(td);
+                            }
+
+                            // Check and apply highlight if temperature or humidity crosses threshold
+                            const nutrientThreshold = 300; // Change this to your desired temperature threshold
+
+                            if (sensorData.nutrient > nutrientThreshold) {
+                                dataRow.classList.add('highlighted-row');
+                            }
+
+                            tbody.appendChild(dataRow);
+                        }
+                        table.appendChild(tbody);
+
+                        return table;
+
+                        sensors.forEach(function (sensor) {
+                            // ...
+
+                            sensorButton.addEventListener('click', function () {
+                                fetchSensorData(sensor.id); // Pass the sensor ID to the fetchSensorData function
+                            });
+
+                            // ...
+                        });
+                    } else if (sensorName == 'Wind Speed Sensor') {
+                        const table = document.createElement('table');
+                        table.className = 'sensor-table';
+
+                        // Create table row for table headings
+                        const thead = document.createElement('thead');
+                        const headingRow = document.createElement('tr');
+                        const headings = ['ID', 'Timestamp', 'Wind Speed'];
+                        for (const heading of headings) {
+                            const th = document.createElement('th');
+                            th.textContent = heading;
+                            headingRow.appendChild(th);
+                        }
+                        thead.appendChild(headingRow);
+                        table.appendChild(thead);
+
+                        // Create table rows with values
+                        const tbody = document.createElement('tbody');
+                        for (const sensorData of sensorDataArray) {
+                            const dataRow = document.createElement('tr');
+                            const keys = ['id', 'timestamp', 'windspeed'];
+                            for (const key of keys) {
+                                const td = document.createElement('td');
+                                td.textContent = sensorData[key];
+                                dataRow.appendChild(td);
+                            }
+
+                            // Check and apply highlight if temperature or humidity crosses threshold
+                            const windspeedThreshold = 40; // Change this to your desired temperature threshold
+
+                            if (sensorData.windspeed > windspeedThreshold) {
+                                dataRow.classList.add('highlighted-row');
+                            }
+
+                            tbody.appendChild(dataRow);
+                        }
+                        table.appendChild(tbody);
+
+                        return table;
+
+                        sensors.forEach(function (sensor) {
+                            // ...
+
+                            sensorButton.addEventListener('click', function () {
+                                fetchSensorData(sensor.id); // Pass the sensor ID to the fetchSensorData function
+                            });
+
+                            // ...
+                        });
+                    } else if (sensorName == 'CO2 Sensor') {
+                        const table = document.createElement('table');
+                        table.className = 'sensor-table';
+
+                        // Create table row for table headings
+                        const thead = document.createElement('thead');
+                        const headingRow = document.createElement('tr');
+                        const headings = ['ID', 'Timestamp', 'CO2 Levels'];
+                        for (const heading of headings) {
+                            const th = document.createElement('th');
+                            th.textContent = heading;
+                            headingRow.appendChild(th);
+                        }
+                        thead.appendChild(headingRow);
+                        table.appendChild(thead);
+
+                        // Create table rows with values
+                        const tbody = document.createElement('tbody');
+                        for (const sensorData of sensorDataArray) {
+                            const dataRow = document.createElement('tr');
+                            const keys = ['id', 'timestamp', 'co2'];
+                            for (const key of keys) {
+                                const td = document.createElement('td');
+                                td.textContent = sensorData[key];
+                                dataRow.appendChild(td);
+                            }
+
+                            // Check and apply highlight if temperature or humidity crosses threshold
+                            const co2Threshold = 1500; // Change this to your desired temperature threshold
+
+                            if (sensorData.co2 > co2Threshold) {
+                                dataRow.classList.add('highlighted-row');
+                            }
+
+                            tbody.appendChild(dataRow);
+                        }
+                        table.appendChild(tbody);
+
+                        return table;
+
+                        sensors.forEach(function (sensor) {
+                            // ...
+
+                            sensorButton.addEventListener('click', function () {
+                                fetchSensorData(sensor.id); // Pass the sensor ID to the fetchSensorData function
+                            });
+
+                            // ...
+                        });
+                    }
+            }
+            }
+
+
+        function showProfile() {
+            var profileSection = document.getElementById('my-profile');
+            var dashboardSection = document.getElementById('dashboard');
+            var querySection = document.getElementById('query');
+
+            profileSection.classList.remove('hidden');
+            dashboardSection.classList.add('hidden');
+            querySection.classList.add('hidden');
+
+            // Update the image for the profile section
+            var profileImage = document.getElementById('profile-image');
+            profileImage.src = 'f.jpg'; // Replace 'profile.jpg' with the new image URL
+
+            // ... Rest of the showProfile() function ...
+            // Fetch and display user's profile details from local storage
+            var loggedInUserEmail = sessionStorage.getItem('loggedInUserEmail');
+            var userDetails = getUserDetails(); // Call the getUserDetails() function to get the user details
+
+            // Update the profile details with the fetched user details
+            var profileDetailsElement = document.getElementById('profile-details');
+            if (userDetails) {
+                profileDetailsElement.innerHTML = `
+      <div class="profile-details-container">
+        <p class="profile-detail"><strong>Name:</strong> ${userDetails.fullName}</p>
+        <p class="profile-detail"><strong>Place:</strong> ${userDetails.place}</p>
+        <p class="profile-detail"><strong>Email:</strong> ${userDetails.email}</p>
+        <p class="profile-detail"><strong>Phone:</strong> ${userDetails.phone}</p>
+        <!-- Add more details as needed -->
+      </div>
+    `;
+            } else {
+                // If the user details are not found, display an error message or handle it accordingly
+                profileDetailsElement.innerHTML = `<div class="profile-details-container"><p>Error: User details not found.</p></div>`;
+            }
+        }
+
+        function showQuery() {
+            var profileSection = document.getElementById('my-profile');
+            var dashboardSection = document.getElementById('dashboard');
+            var querySection = document.getElementById('query');
+
+            profileSection.classList.add('hidden');
+            dashboardSection.classList.add('hidden');
+            querySection.classList.remove('hidden');
+
+            // Update the image for the query section
+            var profileImage = document.getElementById('profile-image');
+            profileImage.src = 'f.jpg'; // Replace 'query.jpg' with the new image URL
+
+            // ... Rest of the showQuery() function ...
+        }
+
+        // Establish WebSocket connection
+        var socket = new WebSocket("ws://localhost:4000/ws");
+
+        // WebSocket connection opened
+        socket.onopen = function (event) {
+            console.log("WebSocket connection opened");
+        };
+
+        // WebSocket message received
+        socket.onmessage = function (event) {
+            var message = event.data;
+            console.log("WebSocket message received:", message);
+
+            // Handle the received message and update the UI as needed
+            // For example, you can display the notification in the Dashboard section
+            var dashboardSection = document.getElementById("dashboard");
+            var notificationElement = document.createElement("div");
+            notificationElement.innerText = message;
+            dashboardSection.appendChild(notificationElement);
+        };
+
+        // WebSocket connection closed
+        socket.onclose = function (event) {
+            console.log("WebSocket connection closed");
+        };
+
+
+        // Inside your script section
+            document.addEventListener("DOMContentLoaded", function () {
+                // ...
+                // Get references to elements
+                var sendQueryButton = document.getElementById("send-query-button");
+                var questionsList = document.getElementById("questions-list");
+                var queryStatus = document.getElementById("query-status");
+                // Listen for the change event on the area dropdown
+                var areaDropdown = document.getElementById("area-dropdown");
+                areaDropdown.addEventListener("change", function () {
+                    var selectedArea = areaDropdown.value;
+                    populateQuestions(selectedArea); // Call the function to populate questions
+                });
+                 // Event listener for the "Send Query" button
+                sendQueryButton.addEventListener("click", async () => {
+                    const selectedQuestion = questionsList.querySelector(".selected");
+                    if (!selectedQuestion) {
+                        queryStatus.textContent = "Please select a question.";
+                        return;
+                    }
+
+                    const questionText = selectedQuestion.textContent;
+
+                    // Modify the URL to the appropriate backend endpoint
+                    const backendEndpoint = "http://localhost:4000/send-query"; // Replace with your actual backend endpoint
+
+                    try {
+                        const response = await fetch(backendEndpoint, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjEzODcwMTYsInVzZXJuYW1lIjoic2hhcmFuIiwib3JnTmFtZSI6Ik9yZzEiLCJpYXQiOjE2ODk4NTEwMTZ9.DNk1LJY_vAQK0-Lx17RM1f7ZlA7Yh8LcKoWLYj_mHMo'
+                                // Add any required headers, such as authentication headers
+                            },
+                            body: JSON.stringify({ question: questionText }),
+                        });
+
+                        if (response.ok) {
+                            queryStatus.textContent = "Query sent successfully!";
+                        } else {
+                            queryStatus.textContent = "Failed to send query.";
+                        }
+                    } catch (error) {
+                        console.error("Error sending query:", error);
+                        queryStatus.textContent = "An error occurred while sending the query.";
+                    }
+                });
+              // Get reference to the "See Responses" button
+                var seeResponsesButton = document.getElementById("see-responses-button");
+
+                // Add event listener to the "See Responses" button
+                seeResponsesButton.addEventListener("click", async () => {
+                    // Modify the URL to the appropriate backend endpoint
+                    const backendEndpoint = "http://localhost:4000/get-responses"; // Replace with your actual backend endpoint
+
+                    try {
+                        const response = await fetch(backendEndpoint, {
+                            method: "GET",
+                            headers: {
+                                "Content-Type": "application/json",
+                                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjEzODcwMTYsInVzZXJuYW1lIjoic2hhcmFuIiwib3JnTmFtZSI6Ik9yZzEiLCJpYXQiOjE2ODk4NTEwMTZ9.DNk1LJY_vAQK0-Lx17RM1f7ZlA7Yh8LcKoWLYj_mHMo' // Replace with your actual access token
+                                // Add any required headers, such as authentication headers
+                            },
+                        });
+
+                        if (response.ok) {
+                            const responses = await response.json();
+                            displayResponses(responses); // Call the function to display responses
+                        } else {
+                            console.error("Failed to fetch responses.");
+                        }
+                    } catch (error) {
+                        console.error("Error fetching responses:", error);
+                    }
+                });
+
+              // Function to display responses
+                function displayResponses(responses) {
+                    var responsesList = document.getElementById("responses-list");
+                    responsesList.innerHTML = ""; // Clear previous responses
+
+                    responses.forEach(function (response) {
+                        var responseItem = document.createElement("li");
+                        responseItem.classList.add("response"); // Apply the 'response' class
+                        var question = document.createElement("div");
+                        question.classList.add("question"); // Apply the 'question' class
+                        question.textContent = `Question: ${response.question}`;
+                        var answer = document.createElement("div");
+                        answer.classList.add("answer"); // Apply the 'answer' class
+                        answer.textContent = `Answer: ${response.answer}`;
+
+                        responseItem.appendChild(question);
+                        responseItem.appendChild(answer);
+                        responsesList.appendChild(responseItem);
+                    });
+                }
+
+            
+            function populateQuestions(area) {
+                    var questionsList = document.getElementById("questions-list");
+                    questionsList.innerHTML = ""; // Clear previous questions
+
+                    var questions = getQuestionsForArea(area); // Implement this function to get questions based on the selected area
+
+                    // Populate the list of questions
+                    questions.forEach(function (question, index) {
+                        var questionItem = document.createElement("li");
+                        questionItem.textContent = question;
+
+                        // Add a data attribute to store the question text
+                        questionItem.setAttribute("data-question", question);
+
+                           // Add an event listener to select the question
+                        questionItem.addEventListener("click", function () {
+                            selectQuestion(question);
+                        });
+                        questionsList.appendChild(questionItem);
+                    });
+
+                    // Listen for the click event on the "Send Query" button
+                    var sendQueryButton = document.getElementById("send-query-button");
+                    sendQueryButton.addEventListener("click", function () {
+                        sendSelectedQuestionToExpert();
+                    });
+                }
+
+
+            function getQuestionsForArea(area) {
+                // Implement this function to return an array of questions based on the selected area
+                // For example, return different arrays of questions for "crops" and "sensors"
+                // You can also load the questions dynamically from a database or JSON file
+                if (area === "crops") {
+                    return ["How do I determine the optimal planting depth for different crops?",
+                        "What are some common pests and diseases that affect tomatoes, and how can I manage them?",
+                        "What's the recommended spacing between plants for lettuce cultivation?",
+                        "What are companion plants that can help deter pests from my cucumber crops?",
+                        "How often should I fertilize my corn crops during different growth stages?",
+                        "What irrigation method is best for growing strawberries in containers?",
+                        "Can you provide tips for preventing blossom end rot in pepper plants?",
+                        "What's the ideal pH range for soil when growing potatoes?",
+                        "How do I identify and treat nutrient deficiencies in my spinach crops?",
+                        "What's the best time to harvest watermelon to ensure optimal sweetness?",
+                        "How can I manage weeds effectively without harming my carrot crops?",
+                        "What's the recommended pruning technique for fruit-bearing apple trees?",
+                        "Can you recommend organic solutions for controlling aphids in my bean plants?",
+                        "How do I encourage flowering in my zucchini plants to enhance fruit production?",
+                        "What are the signs of overwatering and underwatering in radish crops?",
+                        "How can I extend the shelf life of harvested broccoli heads?",
+                        "What cover crops are suitable for improving soil fertility after harvesting cabbage?",
+                        "How do I control powdery mildew on my pumpkin leaves?",
+                        "Can you provide guidance on crop rotation to prevent soil-borne diseases?",
+                        "What's the best way to store harvested onions for long-term use?"];
+                } else if (area === "sensors") {
+                    return ["What is the current temperature in the sensor area?",
+                        "What is the current humidity level in the sensor area?",
+                        "Are the temperature and humidity levels within the desired range?",
+                        "Has there been any significant temperature change recently?",
+                        "Has there been any significant humidity change recently?",
+                        "Is the environment comfortable for the intended purpose (e.g., human occupancy, plant growth)?",
+                        "Are there any conditions that might promote mold or other issues related to humidity?",
+                        "Are there any sudden fluctuations in temperature or humidity?",
+                        "Are there any patterns in temperature and humidity changes over time?",
+                        "Have any extreme temperature or humidity levels been reached recently?",
+                        "Are the temperature and humidity levels suitable for the health of occupants (if applicable)?",
+                        "Have any events, such as opening doors or windows, caused rapid changes in conditions?",
+                        "How does the current temperature and humidity compare to historical averages?",
+                        "Are there any correlations between temperature, humidity, and other factors in the area?",
+                        "Are the temperature and humidity levels consistent across different parts of the sensor area?"];
+                } else {
+                    return []; // Return an empty array if no questions are available
+                }
+            }
+
+    var selectedQuestion = "";
+
+    function selectQuestion(selectedQuestionText) {
+        selectedQuestion = selectedQuestionText;
+
+        // Highlight the selected question item
+        var questionItems = document.querySelectorAll("#questions-list li");
+        questionItems.forEach(function (item) {
+            if (item.textContent === selectedQuestionText) {
+                item.classList.add("selected");
+            } else {
+                item.classList.remove("selected");
+            }
+        });
+    }
+
+    function sendSelectedQuestionToExpert() {
+        if (selectedQuestion) {
+            // Use the 'selectedQuestion' variable to send the question to the experts
+            // For example, you can include it in a request to your server or send it using a WebSocket
+            console.log("Sending question to experts:", selectedQuestion);
+            // Clear the selected question after sending
+            selectedQuestion = "";
+        } else {
+            console.log("No question selected.");
+        }
+    }
+            });
+  
+
+
+    </script>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="sidebar-item" id="profile-item" onclick="showProfile()">
+            <i class="fas fa-thin fa-user"></i>
+            <span>My Profile</span>
+        </div>
+        <div class="sidebar-item" id="dashboard-item" onclick="showDashboard()">
+            <img src="./dashboard.png" alt="">
+            <span>Dashboard</span>
+        </div>
+        <div class="sidebar-item" id="query-item" onclick="showQuery()">
+            <img src="./email.png" alt="">
+            <span>Query</span>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- My Profile -->
+        <div id="my-profile" class="section hidden">
+            <h2>My Profile</h2>
+            <div id="profile-details"></div>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="section hidden">
+            <h2>Dashboard</h2>
+            <div id="sensor-container" class="sensor-container"></div>
+            <div id="sensor-data"></div>
+        </div>
+<!-- Inside the "Query" section -->
+<div id="query" class="section hidden">
+    <h2>Query</h2>
+    <label for="area-dropdown">Select Area:</label>
+    <select id="area-dropdown">
+        <option value="crops">Crops</option>
+        <option value="sensors">Sensors</option>
+        <!-- Add more options for different areas -->
+    </select>
+    <!-- Display relevant questions based on the selected area -->
+    <ul id="questions-list"></ul>
+    <!-- Button to send the query to experts -->
+    <button id="send-query-button">Send Query</button>
+    <!-- Button to see responses sent by experts -->
+    <button id="see-responses-button">See Responses</button>
+    <!-- Display a message to indicate whether the query was sent -->
+    <p id="query-status"></p>
+    <!-- Container to display the responses -->
+    <div id="responses-container"></div>
+    <ul id="responses-list"></ul>
+<!-- Your HTML and CSS code for the layout -->
+
+<div class="container">
+    <ul id="responses-list" class="responses-list"></ul>
+</div>
+
+</div>
+
+
+    </div>
+
+    <!-- Updated image container with an ID 'profile-image-container' -->
+    <div id="profile-image-container" class="image-container">
+        <img id="profile-image" src="farmer.jpg" alt="Your Image">
+    </div>
+</body>
+
+</html>

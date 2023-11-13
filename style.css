@@ -1,0 +1,470 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 200px;
+    height: 100vh;
+    background-color:#2B5227;
+    color: #333333;
+    padding-top: 20px;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.sidebar-item img {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+.sidebar-item span {
+    font-size: 16px;
+    color: #ffffff;
+}
+
+.main-content {
+    margin-left: 200px;
+    padding: 20px;
+}
+
+.section {
+    margin-bottom: 40px;
+}
+
+h2 {
+    color: #333333;
+    margin-bottom: 20px;
+}
+
+.sensor-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.sensor-item img {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+}
+
+.sensor-info h3 {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.sensor-info p {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.error-message {
+    color: #ff0000;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.login-link {
+    margin-top: 10px;
+}
+
+.login-link a {
+    color: #333333;
+    text-decoration: none;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Styling for profile details */
+#profile-details {
+    padding: 20px;
+    background-color: #f2f2f2;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#profile-details p {
+    margin-bottom: 10px;
+    color: #333333;
+}
+
+#profile-details p strong {
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* Vibrant colors */
+h2 {
+    color:#2B5227;
+}
+
+.sidebar-item span {
+    color: #ffffff;
+}
+
+/* Attractive styling for profile details */
+#profile-details {
+    padding: 20px;
+    background-color: #f2f2f2;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#profile-details p {
+    margin-bottom: 10px;
+    color: #333333;
+}
+
+#profile-details p strong {
+    font-weight: bold;
+    color: #2B5227;
+}
+
+.profile-detail-label {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.profile-detail-value {
+    color: #333333;
+}
+
+.profile-detail-value::before {
+    content: ": ";
+}
+
+.sensor-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.sensor-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 200px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f2f2f2;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.sensor-image {
+    width: 80px;
+    height: 80px;
+}
+
+.sensor-name {
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+.sensor-status {
+    font-size: 14px;
+    color: #666666;
+}
+
+.sensor-button img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+}
+
+.sensor-button h3,
+.sensor-button p {
+    margin: 0;
+    text-align: center;
+}
+
+.online {
+    position: relative;
+}
+
+.offline {
+    position: relative;
+}
+
+.online::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #52c41a;
+    box-shadow: 0 0 5px #52c41a;
+    animation: blink-green 1s infinite;
+}
+
+.offline::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #f5222d;
+    box-shadow: 0 0 5px #f5222d;
+    animation: blink-red 1s infinite;
+}
+
+@keyframes blink-green {
+    0% {
+        background-color: #52c41a;
+    }
+
+    50% {
+        background-color: #f2f2f2;
+    }
+
+    100% {
+        background-color: #52c41a;
+    }
+}
+
+@keyframes blink-red {
+    0% {
+        background-color: #f5222d;
+    }
+
+    50% {
+        background-color: #f2f2f2;
+    }
+
+    100% {
+        background-color: #f5222d;
+    }
+}
+
+/* Rest of the CSS styles... */
+/* Darkened overlay for query section */
+#query {
+    background-color: rgba(255, 255, 255, 0.8);
+    /* Adjust the alpha value to control opacity */
+}
+
+#query::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    /* Adjust the alpha value to control darkness */
+    z-index: -1;
+}
+
+.image-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 10%;
+    /* Adjust the width of the sidebar */
+    background-color: #fff;
+    z-index: -1;
+}
+
+.image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.main-content {
+    margin-left: 20%;
+    /* Adjust the width of the sidebar */
+}
+
+/* Rest of the CSS styles... */
+
+/* Styling for sensor data */
+.sensor-data-item {
+    background-color: #f9f9f9;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.sensor-data-item span {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.sensor-data-item span.label {
+    font-weight: bold;
+}
+
+.notification-indicator {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: red;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.notification-icon {
+    color: white;
+    font-size: 12px;
+}
+
+.sensor-table {
+    border-collapse: collapse;
+    width: 100%;
+    background-color: white;
+}
+
+.sensor-table th,
+.sensor-table td {
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+.sensor-table th {
+    text-align: left;
+    background-color: #f2f2f2;
+}
+
+.highlighted-row {
+    background-color: yellow;
+    /* Change this to the desired highlight color */
+}
+
+/* CSS for the dropdown */
+#area-dropdown {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+/* CSS for the questions list */
+#questions-list {
+    list-style: none;
+    padding: 0;
+}
+
+/* CSS for the list items */
+#questions-list li {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+/* Hover effect for list items */
+#questions-list li:hover {
+    background-color: #f2f2f2;
+}
+
+/* Add this to your existing CSS code */
+.selected {
+    background-color: #e0e0e0;
+    /* Change this color to your preference */
+    color: #000;
+    /* Change this color to your preference */
+}
+
+#send-query-button {
+    margin-top: 10px;
+    padding: 10px 20px ;
+    background-color: #007bff;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#send-query-button:hover {
+    background-color: #0056b3;
+}
+
+/* Add this CSS code to your stylesheet */
+#see-responses-button {
+    background-color: #3498db;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+#see-responses-button:hover {
+    background-color: #2980b9;
+}
+
+/* Your existing CSS styles */
+
+.responses-list {
+    list-style: none;
+    padding: 0;
+}
+
+.response {
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.question {
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.answer {
+    margin-left: 20px;
+}
+
+/* Additional styles for the response list */
+.responses-list li {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.responses-list li:hover {
+    transform: scale(1.02);
+}

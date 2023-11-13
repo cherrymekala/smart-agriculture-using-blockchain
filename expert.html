@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Expert's Portal</title>
+    <link rel="stylesheet" type="text/css" href="expert.css">
+    <link rel="stylesheet" href="fontawesome-free-6.4.0-web/css/all.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        window.OneSignal = window.OneSignal || [];
+        OneSignal.push(function () {
+            OneSignal.init({
+                appId: "6fd688e0-c4c4-4a91-abf9-70f05fe26516",
+            });
+            // Subscribe the user to notifications
+            OneSignal.push(function () {
+                OneSignal.on("subscriptionChange", function (isSubscribed) {
+                    if (isSubscribed) {
+                        console.log("User is subscribed to notifications.");
+                        // You can handle additional logic here if needed.
+                    } else {
+                        console.log("User is NOT subscribed to notifications.");
+                    }
+                });
+
+                // Check if the user is already subscribed
+                OneSignal.isPushNotificationsEnabled(function (isSubscribed) {
+                    if (!isSubscribed) {
+                        // If the user is not subscribed, subscribe them now
+                        OneSignal.push(["registerForPushNotifications"]);
+                    }
+                });
+            });
+
+            // Handle notification clicks
+            OneSignal.push(["addListenerForNotificationOpened", function (event) {
+                // Handle the click event when the user clicks on a notification
+                console.log("Notification clicked:", event);
+                // You can customize the behavior when the user clicks on the notification.
+
+                // Add the redirection logic here
+                window.location.href = "http://127.0.0.1:5500/expert.html";
+            }]);
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+                // ...
+
+                // Event listener for the "Get Queries" button
+                var getQueriesButton = document.getElementById("get-queries-button");
+                getQueriesButton.addEventListener("click", async () => {
+                    // Modify the URL to the appropriate backend endpoint
+                    const backendEndpoint = "http://localhost:4000/get-queries"; // Replace with your actual backend endpoint
+
+                    try {
+                        const response = await fetch(backendEndpoint, {
+                            method: "GET",
+                            headers: {
+                                "Content-Type": "application/json",
+                                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjEzODcwMTYsInVzZXJuYW1lIjoic2hhcmFuIiwib3JnTmFtZSI6Ik9yZzEiLCJpYXQiOjE2ODk4NTEwMTZ9.DNk1LJY_vAQK0-Lx17RM1f7ZlA7Yh8LcKoWLYj_mHMo'
+                                // Add any required headers, such as authentication headers
+                            },
+                        });
+
+                        if (response.ok) {
+                            const queries = await response.json();
+                            displayQueries(queries);
+                        } else {
+                            console.error("Failed to fetch queries.");
+                        }
+                    } catch (error) {
+                        console.error("Error fetching queries:", error);
+                    }
+                });
+          // Function to display queries in the "inbox-queries" container
+            function displayQueries(queries) {
+                var inboxQueriesContainer = document.getElementById('inbox-queries');
+                inboxQueriesContainer.innerHTML = ''; // Clear previous content
+
+                // Iterate through the queries and create HTML elements to display them
+                queries.forEach(function (query) {
+                    var queryDiv = document.createElement('div');
+                    queryDiv.className = 'query-item';
+                    queryDiv.innerHTML = `
+           <p><strong>Question:</strong> ${query.question}</p>
+            <p class="timestamp">${new Date(query.timestamp).toLocaleString()}</p>
+             <p><strong>Answer:</strong></p>
+            <textarea id="answer-${query.queryId}" rows="4" cols="50" placeholder="Enter your response"></textarea>
+            <button class="send-response-button" data-query-id="${query.queryId}">Send Response</button>
+            <p id="response-sent-${query.queryId}"></p>
+        `;
+                    inboxQueriesContainer.appendChild(queryDiv);
+                });
+
+                // Event listener for the "Send Response" buttons
+                var sendResponseButtons = document.querySelectorAll(".send-response-button");
+                sendResponseButtons.forEach(button => {
+                    button.addEventListener("click", async () => {
+                        const queryId = button.getAttribute("data-query-id"); // Get the query ID from a data attribute
+                        const answerInput = document.querySelector(`#answer-${queryId}`); // Get the answer input field
+                        const answer = answerInput.value;
+
+                        // Modify the URL to the appropriate backend endpoint
+                        const backendEndpoint = "http://localhost:4000/send-response"; // Replace with your actual backend endpoint
+
+                        try {
+                            const response = await fetch(backendEndpoint, {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MjEzODcwMTYsInVzZXJuYW1lIjoic2hhcmFuIiwib3JnTmFtZSI6Ik9yZzEiLCJpYXQiOjE2ODk4NTEwMTZ9.DNk1LJY_vAQK0-Lx17RM1f7ZlA7Yh8LcKoWLYj_mHMo' // Replace with your actual access token
+                                },
+                                body: JSON.stringify({ queryId: queryId, answer: answer }),
+                            });
+
+                            if (response.ok) {
+                                // Update the UI to indicate that the response has been sent
+                                const responseSentMessage = document.querySelector(`#response-sent-${queryId}`);
+                                responseSentMessage.textContent = 'Response Sent';
+                            } else {
+                                console.error('Failed to send answer.');
+                            }
+                        } catch (error) {
+                            console.error('Error sending answer:', error);
+                        }
+                    });
+                });
+            }
+
+            });
+
+    </script>
+</head>
+
+<body>
+ 
+
+    <div class="sidebar">
+        <div class="sidebar-item" id="profile-item" onclick="showProfile()">
+            <i class="fas fa-thin fa-user"></i>
+            <span>My Profile</span>
+        </div>
+        <div class="sidebar-item" id="dashboard-item" onclick="showDashboard()">
+            <img src="./dashboard.png" alt="">
+            <span>Dashboard</span>
+        </div>
+        <div class="sidebar-item" id="inbox-item" onclick="showInbox()">
+            <img src="./email.png" alt="">
+            <span>Inbox</span>
+        </div>
+    </div>
+
+
+
+
+    <div class="main-content">
+        <!-- My Profile -->
+        <div id="my-profile" class="section hidden">
+            <h2>My Profile</h2>
+            <div id="profile-details"></div>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="section hidden">
+            <h2>Dashboard</h2>
+            <div id="user-button-container">
+                <button id="user-button" class="user-button" onclick="showUserSensors()">User</button>
+            </div>
+            <div id="sensor-container" class="sensor-container"></div>
+            <div id="sensor-data"></div>
+        </div>
+
+<!-- Inside the "Inbox" section -->
+<div id="inbox" class="section hidden">
+    <h2>Inbox</h2>
+    <div id="inbox-queries"></div>
+    <button id="get-queries-button">Get Queries</button>
+</div>
+
+
+
+    </div>
+
+  
+
+<!-- Add these containers for the table and chart -->
+<div class="data-container">
+    <div id="sensor-table-container">
+        <!-- Table will be inserted here -->
+    </div>
+    <div id="sensor-chart-container">
+        <canvas id="sensor-chart"></canvas>
+    </div>
+    <div class="chart-container">
+        <canvas id="sensor-chart"></canvas>
+    </div>
+
+</div>
+
+
+    <script src="experts.js"></script>
+    <script>
+        
+         function getUserRole() {
+                // Implement this function to get the user's role, you can use a cookie, session storage, or any other method
+                // For example, you can set a role cookie during login or signup
+                // For the purpose of this demonstration, I'll use a simple method that returns 'expert'
+                return 'expert';
+            }
+
+           
+            function getUserDetails() {
+                var userDetails;
+                var role = getUserRole();
+
+                if (role === 'farmer') {
+                    userDetails = JSON.parse(localStorage.getItem('farmerDetails'));
+                } else if (role === 'agricultural_expert') {
+                    userDetails = JSON.parse(localStorage.getItem('expertDetails'));
+                }
+
+                return userDetails;
+            }
+    </script>
+    
+</body>
+
+</html>

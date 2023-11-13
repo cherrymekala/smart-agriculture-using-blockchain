@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Login Page</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+
+<body>
+    <div class="header">
+        <button class="header-button" onclick="location.href='welcome.html'">Home</button>
+        <button class="header-button" onclick="location.href='signup.html'">Sign Up</button>
+    </div>
+
+    <div class="container">
+        <h1>Login</h1>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Username/Email:</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username/email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Login</button>
+            </div>
+        </form>
+        <div id="error-message" class="error-message"></div>
+        <div class="forgot-password">
+            <a href="#">Forgot Password?</a>
+        </div>
+    </div>
+    
+    <img src="/images/background.jpg" class="background-image">
+
+    <script src="script.js"></script>
+</body>
+
+</html>

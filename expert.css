@@ -1,0 +1,551 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 200px;
+    height: 100vh;
+    background-color: lightblue;
+    color: #333333;
+    padding-top: 20px;
+}
+
+.sidebar-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.sidebar-item img {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+.sidebar-item span {
+    font-size: 16px;
+    color: #ffffff;
+}
+
+.main-content {
+    margin-left: 200px;
+    padding: 20px;
+}
+
+.section {
+    margin-bottom: 40px;
+}
+
+h2 {
+    color: #333333;
+    margin-bottom: 20px;
+}
+
+.sensor-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.sensor-item img {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+}
+
+.sensor-info h3 {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.sensor-info p {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.error-message {
+    color: #ff0000;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.login-link {
+    margin-top: 10px;
+}
+
+.login-link a {
+    color: #333333;
+    text-decoration: none;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Styling for profile details */
+#profile-details {
+    padding: 20px;
+    background-color: #f2f2f2;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#profile-details p {
+    margin-bottom: 10px;
+    color: #333333;
+}
+
+#profile-details p strong {
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* Vibrant colors */
+h2 {
+    color: #007bff;
+}
+
+.sidebar-item span {
+    color: #ffffff;
+}
+
+/* Attractive styling for profile details */
+#profile-details {
+    padding: 20px;
+    background-color: #f2f2f2;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#profile-details p {
+    margin-bottom: 10px;
+    color: #333333;
+}
+
+#profile-details p strong {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.profile-detail-label {
+    font-weight: bold;
+    color: #007bff;
+}
+
+.profile-detail-value {
+    color: #333333;
+}
+
+.profile-detail-value::before {
+    content: ": ";
+}
+
+.sensor-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.sensor-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 200px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f2f2f2;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.sensor-image {
+    width: 80px;
+    height: 80px;
+}
+
+.sensor-name {
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+.sensor-status {
+    font-size: 14px;
+    color: #666666;
+}
+
+.sensor-button img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+}
+
+.sensor-button h3,
+.sensor-button p {
+    margin: 0;
+    text-align: center;
+}
+
+.online {
+    position: relative;
+}
+
+.offline {
+    position: relative;
+}
+
+.online::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #52c41a;
+    box-shadow: 0 0 5px #52c41a;
+    animation: blink-green 1s infinite;
+}
+
+.offline::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #f5222d;
+    box-shadow: 0 0 5px #f5222d;
+    animation: blink-red 1s infinite;
+}
+
+@keyframes blink-green {
+    0% {
+        background-color: #52c41a;
+    }
+
+    50% {
+        background-color: #f2f2f2;
+    }
+
+    100% {
+        background-color: #52c41a;
+    }
+}
+
+@keyframes blink-red {
+    0% {
+        background-color: #f5222d;
+    }
+
+    50% {
+        background-color: #f2f2f2;
+    }
+
+    100% {
+        background-color: #f5222d;
+    }
+}
+
+/* Rest of the CSS styles... */
+
+/* Styling for inbox section */
+/* Add this CSS code to your "expert.css" file or include it in a <style> tag in your HTML */
+
+/* Style for the inbox section */
+#inbox {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Style for the inbox header */
+#inbox h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+/* Style for the "Get Queries" button */
+#get-queries-button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Change cursor style on hover */
+#get-queries-button:hover {
+    background-color: #0056b3;
+}
+
+/* Style for the inbox queries container */
+#inbox-queries {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Style for each individual query */
+.inbox-query {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #ffffff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Style for the query message */
+.inbox-query .query-message {
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+/* Style for the query date */
+.inbox-query .query-date {
+    color: #999;
+    font-size: 14px;
+}
+
+/* Clear floats after the queries */
+#inbox-queries::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+/* Style for inbox queries and answers */
+#inbox-queries {
+    padding: 20px;
+}
+
+.query-item {
+    background-color: #f5f5f5;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    padding: 15px;
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.query-item p strong {
+    font-weight: bold;
+}
+
+.query-item textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.send-response-button {
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.send-response-button:hover {
+    background-color: #2980b9;
+}
+
+.timestamp {
+    font-size: 12px;
+    color: #888;
+    margin-top: 5px;
+}
+
+/* ... Rest of the CSS styles ... */
+
+/* Styling for user button */
+.user-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 200px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+    padding: 10px;
+    background-color: #f2f2f2;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.user-button img {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+}
+
+.user-button span {
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+.user-button span.status {
+    font-size: 14px;
+    color: #666666;
+}
+
+.user-button.online::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #52c41a;
+    box-shadow: 0 0 5px #52c41a;
+    animation: blink-green 1s infinite;
+}
+
+.user-button.offline::before {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #f5222d;
+    box-shadow: 0 0 5px #f5222d;
+    animation: blink-red 1s infinite;
+}
+
+/* ... Rest of the CSS styles ... */
+
+.image-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 10%;
+    /* Adjust the width of the sidebar */
+    background-color: #fff;
+    z-index: -1;
+}
+
+.image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.main-content {
+    margin-left: 20%;
+    /* Adjust the width of the sidebar */
+}
+
+.sensor-table {
+    border-collapse: collapse;
+    width: 100%;
+    background-color: white;
+}
+
+.sensor-table th,
+.sensor-table td {
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+.sensor-table th {
+    text-align: left;
+    background-color: #f2f2f2;
+}
+
+.notification-indicator {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: red;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.notification-icon {
+    color: white;
+    font-size: 12px;
+}
+
+.sensor-chart {
+    width: 100%;
+    max-height: 300px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #ffffff;
+    /* Bright white background */
+}
+
+/* Add CSS to style the containers and arrange table and chart side-by-side */
+/* Add CSS to style the containers and arrange table and chart side-by-side */
+.data-container {
+    display: flex;
+    gap: 20px;
+}
+
+#sensor-table-container {
+    flex: 1;
+}
+
+#sensor-chart-container {
+    flex: 1;
+    max-width: 500px;
+    /* Adjust the width as needed */
+}
+
+.chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    /* You can adjust the height to fit your needs */
+    padding: 20px;
+    /* Optional padding to create some spacing around the chart */
+}
+
+/* Additional CSS to make the chart bigger */
+.chart-container canvas {
+    width: 800px;
+    /* Adjust the width as needed */
+    height: 500px;
+
+}
+
+.highlighted-row {
+    background-color: yellow;
+    /* Change this to the desired highlight color */
+}
+
+
